@@ -1,0 +1,433 @@
+//cadastro
+
+import React, { useState } from 'react';
+
+// Tipos de perfil e setores do sistema
+export type PerfilUsuario = 'Comum' | 'Tecnico' | 'Admin';
+
+export interface FormCadastroData {
+  nome: string;
+  email: string;
+  senha: string;
+  confirmarSenha: string;
+  setor: string;
+  perfil: PerfilUsuario;
+}
+
+interface CadastroProps {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export const TelaCadastro: React.FC<CadastroProps> = ({ onSuccess, onCancel }) => {
+  const [formData, setFormData] = useState<FormCadastroData>({
+    nome: '',
+    email: '',
+    senha: '',
+    confirmarSenha: '',
+    setor: 'Financeiro',
+    perfil: 'Comum',
+  });
+
+  const [erro, setErro] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState<boolean>(false);
+  const [carregando, setCarregando] = useState<boolean>(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro(null);
+
+    // Validações básicas de negócio
+    if (!formData.nome || !formData.email || !formData.senha) {
+      setErro('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (formData.senha.length < 6) {
+      setErro('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (formData.senha !== formData.confirmarSenha) {
+      setErro('As senhas não coincidem.');
+      return;
+    }
+
+    setCarregando(true);
+
+    try {
+      // Simulação de chamada à API do backend Chamadinho
+      // await api.post('/usuarios', formData);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setSucesso(true);
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      setErro('Falha ao cadastrar usuário. Verifique se o e-mail já está em uso.');
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">🛠️ Chamadinho</h2>
+          <p className="text-sm text-gray-600">Cadastro de Novo Funcionário / Usuário</p>
+        </div>
+
+        {erro && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded">
+            {erro}
+          </div>
+        )}
+
+        {sucesso && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 text-sm rounded">
+            Usuário cadastrado com sucesso! Redirecionando para login...
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+            <input
+              type="text"
+              name="nome"
+              value={formData.nome}
+              onChange={handleChange}
+              placeholder="Ex: João da Silva"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail Corporativo *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="joao@empresa.com"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Setor</label>
+              <select
+                name="setor"
+                value={formData.setor}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Financeiro">Financeiro</option>
+                <option value="Recursos Humanos">Recursos Humanos</option>
+                <option value="Marketing">Marketing</option>
+                <option value="T.I">T.I</option>
+                <option value="Administração">Administração</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Perfil</label>
+              <select
+                name="perfil"
+                value={formData.perfil}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Comum">Comum (Emissor)</option>
+                <option value="Tecnico">Técnico (T.I)</option>
+                <option value="Admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Senha *</label>
+            <input
+              type="password"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha *</label>
+            <input
+              type="password"
+              name="confirmarSenha"
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="submit"
+              disabled={carregando}
+              className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition disabled:bg-blue-300"
+            >
+              {carregando ? 'Cadastrando...' : 'Cadastrar'}
+            </button>
+
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-md transition"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+
+
+//Tipos e Interfaces(types.ts)
+
+export type PerfilUsuario = 'Comum' | 'Tecnico' | 'Admin';
+export type Urgencia = 'Baixa' | 'Média' | 'Alta' | 'Crítica';
+export type StatusChamado = 'Pendente' | 'Em Progresso' | 'Concluído';
+export type StatusHardware = 'Em uso' | 'Em manutenção' | 'Disponível' | 'Descartado';
+
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  senhaHash: string;
+  setor: string;
+  perfil: PerfilUsuario;
+  dataCriacao: Date;
+}
+
+export interface Chamado {
+  id: number;
+  titulo: string;
+  descricao: string;
+  setor: string;
+  prioridade: Urgencia;
+  status: StatusChamado;
+  usuarioId: number;
+  tecnicoId?: number | null;
+  dataCriacao: Date;
+}
+
+export interface MensagemChat {
+  id: number;
+  chamadoId: number;
+  usuarioId: number;
+  mensagem: string;
+  dataEnvio: Date;
+}
+
+export interface Hardware {
+  id: number;
+  equipamento: string;
+  numSerie: string;
+  setor: string;
+  status: StatusHardware;
+}
+
+// DTOs (Data Transfer Objects) para entrada de dados
+export interface CriarChamadoDTO {
+  titulo: string;
+  descricao: string;
+  prioridade: Urgencia;
+  usuarioId: number;
+  setor: string;
+}
+
+export interface AtualizarStatusDTO {
+  chamadoId: number;
+  tecnicoId: number;
+  novoStatus: StatusChamado;
+}
+
+
+//Mapeamento do Banco de Dados(schema.prisma)
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./chamadinho.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Perfil {
+  Comum
+  Tecnico
+  Admin
+}
+
+enum Urgencia {
+  Baixa
+  Media
+  Alta
+  Critica
+}
+
+enum StatusChamado {
+  Pendente
+  Em_Progresso
+  Concluido
+}
+
+enum StatusHardware {
+  Em_uso
+  Em_manutencao
+  Disponivel
+  Descartado
+}
+
+model Usuario {
+  id          Int            @id @default(autoincrement())
+  nome        String
+  email       String         @unique
+  senha       String
+  setor       String
+  perfil      Perfil         @default(Comum)
+  chamados    Chamado[]      @relation("Solicitante")
+  atendimentos Chamado[]     @relation("TecnicoAtribuido")
+  mensagens   MensagemChat()
+  criadoEm    DateTime       @default(now())
+}
+
+model Chamado {
+  id          Int            @id @default(autoincrement())
+  titulo      String
+  descricao   String
+  setor       String
+  prioridade  Urgencia
+  status      StatusChamado  @default(Pendente)
+  usuarioId   Int
+  usuario     Usuario        @relation("Solicitante", fields: [usuarioId], references: [id])
+  tecnicoId   Int?
+  tecnico     Usuario?       @relation("TecnicoAtribuido", fields: [tecnicoId], references: [id])
+  mensagens   MensagemChat()
+  criadoEm    DateTime       @default(now())
+}
+
+model MensagemChat {
+  id        Int      @id @default(autoincrement())
+  chamadoId Int
+  chamado   Chamado  @relation(fields: [chamadoId], references: [id])
+  usuarioId Int
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  mensagem  String
+  dataEnvio DateTime @default(now())
+}
+
+model InventarioHardware {
+  id          Int            @id @default(autoincrement())
+  equipamento String
+  numSerie    String         @unique
+  setor       String
+  status      StatusHardware
+}
+
+
+
+//Serviço de Regras de Negócio(ChamadoService.ts)
+
+
+import { Chamado, CriarChamadoDTO, AtualizarStatusDTO, Urgencia } from './types';
+
+export class ChamadoService {
+  // Mapa numérico para ordenação por nível de urgência
+  private static pesoPrioridade: Record<Urgencia, number> = {
+    'Crítica': 1,
+    'Alta': 2,
+    'Média': 3,
+    'Baixa': 4,
+  };
+
+  /**
+   * Ordena a fila de chamados dos técnicos priorizando chamados Críticos/Altos
+   */
+  public static ordenarFilaTecnico(chamados: Chamado[]): Chamado[] {
+    return chamados.sort((a, b) => {
+      const pesoA = this.pesoPrioridade[a.prioridade];
+      const pesoB = this.pesoPrioridade[b.prioridade];
+      return pesoA - pesoB;
+    });
+  }
+
+  /**
+   * Valida se a transição de status é permitida
+   */
+  public static validarMudancaStatus(statusAtual: string, novoStatus: string): boolean {
+    if (statusAtual === 'Pendente' && novoStatus === 'Em Progresso') return true;
+    if (statusAtual === 'Em Progresso' && novoStatus === 'Concluído') return true;
+    if (statusAtual === 'Em Progresso' && novoStatus === 'Pendente') return true; // Reabertura
+    return false;
+  }
+}
+
+
+//Exemplo de API Express Router(chamadoRoutes.ts)
+
+
+import { Router, Request, Response } from 'express';
+import { ChamadoService } from './ChamadoService';
+import { CriarChamadoDTO, AtualizarStatusDTO } from './types';
+
+const router = Router();
+
+// Endpoint: Criar Chamado
+router.post('/chamados', async (req: Request<{}, {}, CriarChamadoDTO>, res: Response) => {
+  const { titulo, descricao, prioridade, usuarioId, setor } = req.body;
+
+  if (!titulo || !descricao || !prioridade) {
+    return res.status(400).json({ erro: 'Campos obrigatórios ausentes.' });
+  }
+
+  // Lógica de persistência no banco (ex: prisma.chamado.create)
+  return res.status(201).json({ mensagem: 'Chamado criado com sucesso!' });
+});
+
+// Endpoint: Fila do Técnico (com filtro por urgência)
+router.get('/chamados/fila', async (req: Request, res: Response) => {
+  // Exemplo de chamados recuperados do banco
+  const chamadosSimulados = [
+    { id: 1, titulo: 'Monitor piscando', prioridade: 'Baixa', status: 'Pendente' },
+    { id: 2, titulo: 'Servidor caiu', prioridade: 'Crítica', status: 'Pendente' },
+  ] as any[];
+
+  const filaOrdenada = ChamadoService.ordenarFilaTecnico(chamadosSimulados);
+  return res.json(filaOrdenada);
+});
+
+export default router;
+
+
+
+
+
+
+
+
